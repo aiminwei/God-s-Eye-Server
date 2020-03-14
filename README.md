@@ -35,15 +35,6 @@ cd eggshell
 python eggshell.py
 ```
 
-### iOS (Jailbroken)
-Add Cydia source: http://lucasjackson.io/repo
-Install EggShell 3
-Use any mobile terminal application and run the command eggshell
-
-<img src="http://lucasjackson.io/images/eggshell/main-menu-ios.png?3" alt="Main menu" width="400px;"/>
-
-<hr style="height:1px; background:#9EA4A9">
-
 
 
 ## Creating Payloads
@@ -53,21 +44,6 @@ Eggshell payloads are executed on the target machine.  The payload first sends o
 Selecting bash from the payload menu will give us a 1 liner that establishes an eggshell session upon execution on the target machine
 
 <img src="http://lucasjackson.io/images/eggshell/bash-payload.png" alt="Bash payload" width="300px"/>
-
-### teensy macOS (USB injection)
-Teensy is a USB development board that can be programmed with the Arduino ide.  It emulates usb keyboard strokes extremely fast and can inject the EggShell payload just in a few seconds.
-
-<img src="http://lucasjackson.io/images/eggshell/teensy.jpg" alt="Teensy macOS payload" width="250px"/>
-
-Selecting teensy will give us an arduino based payload for the teensy board.
-
-<img src="http://lucasjackson.io/images/eggshell/teensy-macos-payload.png" alt="Teensy macOS payload" width="450px"/>
-
-After uploading to the teensy, we can use the device to plug into a macOS usb port.  Once connected to a computer, it will automatically emulate the keystrokes needed to execute a payload.
-
-<img src="http://lucasjackson.io/images/eggshell/arduino-ide.png" alt="Teensy macOS payload" width="450px"/>
-
-<hr style="height:1px; background:#9EA4A9">
 
 
 
@@ -108,20 +84,6 @@ Similar to the session interface, we can type "help" to show Multihandler comman
 <hr style="height:1px; background:#9EA4A9">
 
 
-
-## Featured
-Featured in EverythingApplePro's video demonstrating an iOS 9.3.3 Webkit vulnerability used to run EggShell
-
-[![EverythingApplePro](http://lucasjackson.io/images/eggshell/featureeep.png)](https://www.youtube.com/embed/iko0bCVW-zk?start=209)
-
-<hr style="height:1px; background:#9EA4A9">
-
-
-## Special Thanks
-- Linus Yang / Ryley Angus for the iOS Python package
-- AlessandroZ for LaZagne
-
-
 ## DISCLAMER
 By using EggShell, you agree to the GNU General Public License v2.0 included in the repository. For more details at http://www.gnu.org/licenses/gpl-2.0.html. Using EggShell for attacking targets without prior mutual consent is illegal. It is the end user's responsibility to obey all applicable local, state and federal laws. Developers assume no liability and are not responsible for any misuse or damage caused by this program.
 
@@ -157,49 +119,120 @@ By using EggShell, you agree to the GNU General Public License v2.0 included in 
 * **upload**         : upload file
 
 
-#### iOS
-* **alert**          : make alert show up on device
-* **battery**        : get battery level
-* **bundleids**      : list bundle identifiers
-* **cd**             : change directory
-* **dhome**          : simulate a double home button press
-* **dial**           : dial a phone number
-* **download**       : download file
-* **getcontacts**    : download addressbook
-* **getnotes**       : download notes
-* **getpasscode**    : retreive the device passcode
-* **getsms**         : download SMS
-* **getvol**         : get volume level
-* **home**           : simulate a home button press
-* **installpro**     : install substrate commands
-* **ipod**           : control music player
-* **islocked**       : check if the device is locked
-* **lastapp**        : get last opened application
-* **locate**         : get device location coordinates
-* **locationservice**: toggle location services
-* **lock**           : simulate a lock button press
-* **ls**             : list contents of a directory
-* **mic**            : record mic
-* **mute**           : update and view mute status
-* **open**           : open apps
-* **openurl**        : open url on device
-* **persistence**    : attempts to re establish connection after close
-* **picture**        : take picture through the front or back camera
-* **pid**            : get process id
-* **respring**       : restart springboard
-* **safemode**       : put device into safe mode
-* **say**            : text to speach
-* **setvol**         : set device volume
-* **sysinfo**        : view system information
-* **upload**         : upload file
-* **vibrate**        : vibrate device
+
+#WsServer
 
 
-#### Linux
-* **cd**             : change directory
-* **download**       : download file
-* **ls**             : list contents of a directory
-* **pid**            : get process id
-* **pwd**            : show current directory
-* **upload**         : upload file
+## About
+
+Listen for connections from Hololens client and communicate with EggShell server to execute commands and return back the results.
+
+## Server Info
+* **Server Platform**             : AWS
+* **Server Public IP**            : 13.52.100.31
+* **Server Port**                 : 5000
+* **Accept Connections**          : 10 (For current use)
+
+## Transport Protocol
+
+This WsServer use WebSocket Protocol to build the connections between server and its clients.
+Clients must be compatible with server using the same protocol.
+
+## Functions
+
+###macos
+* **screenshot**     : take screenshot
+* **picture**        : take picture through iSight
+
+## WorkFlow
+
+1. Server start
+    create eggshell thread to accept victim connection
+    create WsServer to accept client (Hololens) to connect
+
+2. Once server and client have built the connection
+    server send push message to client
+
+3. After server have sent the push message
+    Loop Flow:
+        client send request to server
+        server send back response
+        optional: when server gets any update, server may send push messages
+
+
+## Message Format
+
+### Push Message
+
+Example:
+```
+{
+    "id": "Success",
+    "content-type": "json",
+    "content": "{}"
+}
+```
+
+| Key           |  Value                | Description |
+| ----          |  ----                 | ----        |
+|status         |"Success" or "Fail"    |Fail means server cannot handle request|
+|content-type   |"json"                 |json→ content: object|
+|content        |Object                 |current Victim information|
+
+####content example:
+    session_id: {"name": "", "picture": "", "privacy": ""}
+    name     →  victim name
+    picture  →  victim picture
+    privacy  →  the detail info json file path on server
+    
+```
+{
+    1: {
+        "name":     "Gagan",
+        "picture":  "DB/Gagan/gagan_face.jpg",
+        "privacy":  "DB/Gagan/profile_Gagan Vasudev.json"
+    }
+}
+```
+### Request Message
+
+Example:
+```
+{
+    "id": 1,
+    "cmd": "picture",
+    "para": ""
+}
+```
+
+|Key                |Value                                |Description|
+|       ----        |       ----                          |----|
+|id                 |1,2,...                              |Session_id, which victim to execute the command|
+|cmd                |"fetch", "picture", "screenshot"     |command to run|
+|para               |""                                   |For now, no use|
+
+#### Command Sets:
+
+1. exit:           close the connection between client and server
+2. fetch:          get the current victims information (picture and profile json file)  
+3. picture:        take a picture using victims' camera (id specifies which victim to perform)
+4. screenshot:     get a screenshot of victim's machine (id specifies which victim to perform)
+
+### Response Format
+
+Example:
+```
+{
+    "status": "Success",
+    "content-type": "file",
+    "content": "picture_1.jpg"
+}
+```
+
+| Key           |  Value                | Description |
+| ----          |  ----                 | ----        |
+|id             |"Success" or "Fail"    |Fail means server cannot handle request|
+|content-type   |"json" or "file"       |json → content: object, file → content: file_path|
+|content        |""                     |real content for communication|
+
 
