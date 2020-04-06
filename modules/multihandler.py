@@ -58,8 +58,9 @@ class MultiHandler:
 		id_number = 1
 		while 1:
 			if self.is_running:
-				session, hostAddress = self.server.listen_for_stager()
-				if session:
+				session_infos = self.server.listen_for_stager()
+				if session_infos:
+					session, hostAddress = session_infos
 					if session.uid in self.sessions_uid.keys():
 						if self.sessions_uid[session.uid].needs_refresh:
 							self.update_session(self.sessions_uid[session.uid],session)
