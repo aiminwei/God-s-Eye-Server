@@ -18,6 +18,7 @@ class WsServer:
         self.port = 5000
         self.buffer_size = 1024
         self.eggshell = eggshell
+        self.is_running = True
         self.conn_poll = []   # connection pool for server to send update info
         self.ready = False
         self.command_list = ['execution', 'fetch', 'exit']
@@ -171,6 +172,8 @@ class WsServer:
 ### Server Functions
 
     def close_app(self):
+        self.is_running = False
+        time.sleep(3)
         self.close_all_connections()
         self.eggshell.server.multihandler.stop_server()
 
@@ -239,13 +242,14 @@ class WsServer:
     def push_data(self):
         try:
             # Send victims' info to all connections
-            while True:
+            while self.is_running:
                 if self.eggshell.server.multihandler.victims_modify:
                     for conn in self.conn_poll:
                         self.update_victim_info(conn)
                     self.eggshell.server.multihandler.victims_modify = False
                 else:
                     time.sleep(3)
+            print ('End the Server Push Data Thread')
         except:
             print ("End connection for update error")
             return
@@ -293,12 +297,12 @@ class WsServer:
             except KeyboardInterrupt:
                 print('Close the Application')
                 self.close_app()
-                print('Last step to exit connection listener')
+                print ('Last step to exit connection listener')
                 break
             except:
-                print('Error: close the Application')
+                print ('Error: close the Application')
                 self.close_app()
-                print('Last step to exit connection listener')
+                print ('Last step to exit connection listener')
                 break
         sys.exit()
 
