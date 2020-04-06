@@ -293,11 +293,14 @@ class WsServer:
             except KeyboardInterrupt:
                 print('Close the Application')
                 self.close_app()
-                sys.exit()
+                print('Last step to exit connection listener')
+                break
             except:
                 print('Error: close the Application')
                 self.close_app()
-                sys.exit()
+                print('Last step to exit connection listener')
+                break
+        sys.exit()
 
 
 if __name__ == "__main__":

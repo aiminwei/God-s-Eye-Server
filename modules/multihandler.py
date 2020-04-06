@@ -87,6 +87,7 @@ class MultiHandler:
 						self.victims_modify = True
 #						self.init_interact_with_session()
 			else:
+				h.info_general("Exit the listener")
 				return
 
 
