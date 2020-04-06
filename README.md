@@ -1,3 +1,204 @@
+#WsServer
+
+
+## About
+
+Listen for connections from Hololens client and communicate with EggShell server to execute commands and send back the results.
+
+## Server Info
+* **Server Platform**             : AWS
+* **Server Public IP**            : 13.52.100.31
+* **Server Port**                 : 5000
+* **Accept Connections**          : 10 (For current use)
+
+## Transport Protocol
+
+This WsServer use WebSocket Protocol to build the connections between server and its clients.
+Clients must be compatible with server using the same protocol.
+
+## Functions
+
+###macos
+* **screenshot**     : take screenshot
+* **picture**        : take picture through iSight
+
+## WorkFlow
+
+1. Server start
+    create eggshell thread to accept victim connection
+    create WsServer to accept client (Hololens) to connect
+
+2. Once server and client have built the connection
+    server send push message to client
+
+3. After server have sent the push message
+
+    Loop Flow:
+        client send request to server
+        server send back response
+        optional: when server gets any update, server may send push messages
+
+
+## Message Format
+
+### Push Message
+
+Victims Example:
+```
+{
+    "status":       "Success",
+    "content_type": "json",
+    "content":      {}
+}
+```
+
+| Key           |  Value                | Description |
+| ----          |  ----                 | ----        |
+|status         |"Success" or "Fail"    |Fail means server cannot handle request|
+|content-type   |"json"                 |json → content-type: object|
+|content        |Object                 |current Victim information|
+
+####content example:
+    Key Explanation:
+    victims         →  victims list
+    total_victims   →  number of victims
+    session_id      →  session_id of each victim
+    victim_info     →  the host information about victim (include username, hostname and 
+                       machine type)
+    
+```
+{
+     "status":       "Success",
+     "content_type": "json",
+     "content":
+        {
+            "victims": 
+                [
+                    {
+                        "session_id":        1,
+                        "ip_address": ["127.0.0.1", 49404],
+                        "victim_info": 
+                            {
+                                "username": "aiminwei", 
+                                "hostname": "Aimin\u7684MacBook Pro", 
+                                "type":     "macos"
+                            }
+                    },
+                ],
+            "total_victims": 1
+        },
+}
+```
+### Request Message
+
+Required Format (example):
+```
+{
+    "command":      "fetch",
+    "victims_type": "identified victim",
+    "content":      "",
+}
+```
+
+|Key                |Value                                |Description|
+|       ----        |       ----                          |----|
+|command            |"fetch", "exit", "execution"         |client request for server to respond|
+|victims_type       |"victims" or "identified victims"    |which victims set client request (for fetch command)|
+|content            |Actual command to execution on victims machine   | only valid when it's execution command |
+
+
+Execution Request Format (example):
+```
+{
+    "command":      "execution",
+    "content": 
+        {
+            "session_id":   1,
+            "action":       "screenshot" or "picture",
+            "para":         "",
+        }
+}
+```
+
+#### Command Sets:
+
+1. exit:            close the connection between client and server
+2. fetch:           get the current victims' or identified victims' information (picture and profile json file)
+3. execution:       execute command on victims' machine
+
+
+#### Action Sets:
+1. picture:        take a picture using victims' camera (session_id specifies which victim to perform)
+2. screenshot:     get a screenshot of victim's machine (session_id specifies which victim to perform)
+
+
+### Response Format
+
+Example:
+```
+{
+    "status":       "Success",
+    "content_type": "text",
+    "content":      "picture_1.jpg"
+}
+```
+
+| Key           |  Value                | Description |
+| ----          |  ----                 | ----        |
+|status         |"Success" or "Fail"    |Fail means server cannot handle request|
+|content_type   |"json" or "text"       |json → content: object, text → content: filename or filepath or error message|
+|content        |"" or {}               |response content data|
+
+
+Example for Fetch identified victims:
+```
+{
+    "status":       "Success",
+    "content_type": "json",
+    "content": 
+        {
+            "identified_victims": 
+                [
+                    {
+                        "session_id":     1,
+                        "profile": 
+                            {
+                                "picture": "DB/Aimin/aimin_face.jpg", 
+                                "name": "Aimin", 
+                                "privacy": "DB/Aimin/profile_Aimin Wei.json"
+                            },
+                    },
+                ],
+            "total_identified_victims":   1,
+        }, 
+    
+}
+```
+
+Example Response of execution command:
+```
+{
+    "status":       "Success",
+    "content_type": "text",
+    "content":      "screenshot_1586044054.jpg"
+}
+```
+
+Resource Request from Server:
+
+For the above information, like screen shots or pictures which are stored under
+server DB/pictures folder, using nginx server to access this kinds of resources by using http request.
+Profile infos are under certain file path which are notify in the result string.
+    
+Example:
+1.  pictures or screen shots:
+    "http://13.52.100.31/DB/pictures/screenshot_1586044054.jpg"
+2.  profile_info:
+    "http://13.52.100.31/DB/Aimin/aimin_face.jpg",
+    "http://13.52.100.31/DB/Aimin/profile_Aimin Wei.json"
+
+
+
 # [EggShell](http://lucasjackson.io/eggshell)
 
 
@@ -117,122 +318,3 @@ By using EggShell, you agree to the GNU General Public License v2.0 included in 
 * **su**             : su login
 * **suspend**        : suspend current session (goes back to login screen)
 * **upload**         : upload file
-
-
-
-#WsServer
-
-
-## About
-
-Listen for connections from Hololens client and communicate with EggShell server to execute commands and return back the results.
-
-## Server Info
-* **Server Platform**             : AWS
-* **Server Public IP**            : 13.52.100.31
-* **Server Port**                 : 5000
-* **Accept Connections**          : 10 (For current use)
-
-## Transport Protocol
-
-This WsServer use WebSocket Protocol to build the connections between server and its clients.
-Clients must be compatible with server using the same protocol.
-
-## Functions
-
-###macos
-* **screenshot**     : take screenshot
-* **picture**        : take picture through iSight
-
-## WorkFlow
-
-1. Server start
-    create eggshell thread to accept victim connection
-    create WsServer to accept client (Hololens) to connect
-
-2. Once server and client have built the connection
-    server send push message to client
-
-3. After server have sent the push message
-    Loop Flow:
-        client send request to server
-        server send back response
-        optional: when server gets any update, server may send push messages
-
-
-## Message Format
-
-### Push Message
-
-Example:
-```
-{
-    "id": "Success",
-    "content-type": "json",
-    "content": "{}"
-}
-```
-
-| Key           |  Value                | Description |
-| ----          |  ----                 | ----        |
-|status         |"Success" or "Fail"    |Fail means server cannot handle request|
-|content-type   |"json"                 |json→ content: object|
-|content        |Object                 |current Victim information|
-
-####content example:
-    session_id: {"name": "", "picture": "", "privacy": ""}
-    name     →  victim name
-    picture  →  victim picture
-    privacy  →  the detail info json file path on server
-    
-```
-{
-    1: {
-        "name":     "Gagan",
-        "picture":  "DB/Gagan/gagan_face.jpg",
-        "privacy":  "DB/Gagan/profile_Gagan Vasudev.json"
-    }
-}
-```
-### Request Message
-
-Example:
-```
-{
-    "id": 1,
-    "cmd": "picture",
-    "para": ""
-}
-```
-
-|Key                |Value                                |Description|
-|       ----        |       ----                          |----|
-|id                 |1,2,...                              |Session_id, which victim to execute the command|
-|cmd                |"fetch", "picture", "screenshot"     |command to run|
-|para               |""                                   |For now, no use|
-
-#### Command Sets:
-
-1. exit:           close the connection between client and server
-2. fetch:          get the current victims information (picture and profile json file)  
-3. picture:        take a picture using victims' camera (id specifies which victim to perform)
-4. screenshot:     get a screenshot of victim's machine (id specifies which victim to perform)
-
-### Response Format
-
-Example:
-```
-{
-    "status": "Success",
-    "content-type": "file",
-    "content": "picture_1.jpg"
-}
-```
-
-| Key           |  Value                | Description |
-| ----          |  ----                 | ----        |
-|id             |"Success" or "Fail"    |Fail means server cannot handle request|
-|content-type   |"json" or "file"       |json → content: object, file → content: file_path|
-|content        |""                     |real content for communication|
-
-

