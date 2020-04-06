@@ -1,5 +1,4 @@
-#WsServer
-
+# WsServer
 
 ## About
 
@@ -18,7 +17,7 @@ Clients must be compatible with server using the same protocol.
 
 ## Functions
 
-###macos
+### macos
 * **screenshot**     : take screenshot
 * **picture**        : take picture through iSight
 
