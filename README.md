@@ -57,7 +57,7 @@ Victims Example:
 |content-type   |"json"                 |json → content-type: object|
 |content        |Object                 |current Victim information|
 
-####content example:
+#### Content Example:
     Key Explanation:
     victims         →  victims list
     total_victims   →  number of victims
