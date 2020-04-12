@@ -47,7 +47,7 @@ Victims Example:
 {
     "status":       "Success",
     "content_type": "json",
-    "content":      {}
+    "content":      {},
 }
 ```
 
@@ -64,6 +64,7 @@ Victims Example:
     session_id      →  session_id of each victim
     victim_info     →  the host information about victim (include username, hostname and 
                        machine type)
+    identified      →  whether this victim has been identified
     
 ```
 {
@@ -81,7 +82,8 @@ Victims Example:
                                 "username": "aiminwei", 
                                 "hostname": "Aimin\u7684MacBook Pro", 
                                 "type":     "macos"
-                            }
+                            },
+                        "identified":       "true",
                     },
                 ],
             "total_victims": 1
@@ -138,7 +140,7 @@ Example:
 {
     "status":       "Success",
     "content_type": "text",
-    "content":      "picture_1.jpg"
+    "content":      "picture_1.jpg",
 }
 ```
 
@@ -179,7 +181,7 @@ Example Response of execution command:
 {
     "status":       "Success",
     "content_type": "text",
-    "content":      "screenshot_1586044054.jpg"
+    "content":      "screenshot_1586044054.jpg",
 }
 ```
 

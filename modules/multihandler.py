@@ -72,18 +72,26 @@ class MultiHandler:
 						session.id = id_number
 						victim = {}
 						victim_info = {}
+
+						# Construct victims info dict
 						victim['session_id'] = id_number
 						victim['ip_address'] = hostAddress
 						victim_info['username'] = session.username
 						victim_info['hostname'] = session.hostname
 						victim_info['type'] = session.type
 						victim['victim_info'] = victim_info
+
+						# Whether this victim is identified
+						# If identified, add this victim into identified victim list
+						identified = self.identify_victim(session.id)
+						victim['identified'] = identified
+
+						# Append victim into victim list
 						self.victims['victims'].append(victim)
 						self.victims['total_victims'] += 1
 						id_number += 1
 						sys.stdout.write("\n{0}[*]{2} Session {1} opened{2}\n{3}".format(h.COLOR_INFO,str(session.id),h.WHITE,self.handle))
 						sys.stdout.flush()
-						self.identify_victim(session.id)
 						self.victims_modify = True
 #						self.init_interact_with_session()
 			else:
