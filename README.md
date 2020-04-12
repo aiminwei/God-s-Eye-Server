@@ -96,7 +96,7 @@ Required Format (example):
 ```
 {
     "command":      "fetch",
-    "victims_type": "identified victim",
+    "victims_type": "identified victims",
     "content":      "",
 }
 ```

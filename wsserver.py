@@ -124,12 +124,18 @@ class WsServer:
                     raw_cmd = json.loads(client_data.decode())
                     command = raw_cmd['command']
                     if 'victims_type' in raw_cmd:
+                        print (1)
                         victims_type = raw_cmd['victims_type']
+                        print (2)
                     else:
+                        print (3)
                         victims_type = None
                     if 'content' in raw_cmd:
+                        print (4)
                         content = raw_cmd['content']
+                        print (5)
                     else:
+                        print (6)
                         content = None
                 except:
                     self.error_res(conn, "Invalid Request")
@@ -300,7 +306,6 @@ class WsServer:
                 print ('Error: close the Application')
                 self.close_app()
                 print ('Last step to exit connection listener')
-                break
         sys.exit()
 
 
