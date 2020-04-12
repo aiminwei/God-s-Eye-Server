@@ -306,6 +306,7 @@ class WsServer:
                 print ('Error: close the Application')
                 self.close_app()
                 print ('Last step to exit connection listener')
+                break
         sys.exit()
 
 
