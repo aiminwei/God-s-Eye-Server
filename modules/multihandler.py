@@ -185,6 +185,12 @@ class MultiHandler:
 			return False
 		try:
 			idx = session_id - 1
+			victim = self.victims['victims'][idx]
+
+			# if already identified, return True
+			if victim['identified']:
+				return True
+
 			file_name = self.sessions_id[session_id].init_interact()
 			response = faceRec(file_name)
 			response = json.loads(response)
@@ -203,7 +209,6 @@ class MultiHandler:
 							self.identified_victims['identified_victims'].append(identified_victim)
 							self.identified_victims['total_identified_victims'] += 1
 							break
-					victim = self.victims['victims'][idx]
 					victim['identified'] = True
 					return True
 				else:

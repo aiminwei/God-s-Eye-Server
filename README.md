@@ -47,7 +47,7 @@ Victims Example:
 {
     "status":       "Success",
     "content_type": "json",
-    "content":      {},
+    "content":      {}
 }
 ```
 
@@ -83,11 +83,11 @@ Victims Example:
                                 "hostname": "Aimin\u7684MacBook Pro", 
                                 "type":     "macos"
                             },
-                        "identified":       "true",
-                    },
+                        "identified":       "true"
+                    }
                 ],
             "total_victims": 1
-        },
+        }
 }
 ```
 ### Request Message
@@ -97,7 +97,7 @@ Required Format (example):
 {
     "command":      "fetch",
     "victims_type": "identified victims",
-    "content":      "",
+    "content":      ""
 }
 ```
 
@@ -116,7 +116,7 @@ Execution Request Format (example):
         {
             "session_id":   1,
             "action":       "screenshot" or "picture",
-            "para":         "",
+            "para":         ""
         }
 }
 ```
@@ -140,7 +140,7 @@ Example:
 {
     "status":       "Success",
     "content_type": "text",
-    "content":      "picture_1.jpg",
+    "content":      "picture_1.jpg"
 }
 ```
 
@@ -167,11 +167,11 @@ Example for Fetch identified victims:
                                 "picture": "DB/Aimin/aimin_face.jpg", 
                                 "name": "Aimin", 
                                 "privacy": "DB/Aimin/profile_Aimin Wei.json"
-                            },
-                    },
+                            }
+                    }
                 ],
-            "total_identified_victims":   1,
-        }, 
+            "total_identified_victims":   1
+        }
     
 }
 ```
@@ -181,7 +181,7 @@ Example Response of execution command:
 {
     "status":       "Success",
     "content_type": "text",
-    "content":      "screenshot_1586044054.jpg",
+    "content":      "screenshot_1586044054.jpg"
 }
 ```
 
