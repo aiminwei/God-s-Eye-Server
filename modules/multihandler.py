@@ -84,7 +84,10 @@ class MultiHandler:
 
 						# Append victim into victim list
 						self.victims['victims'].append(victim)
-						self.victims['total_victims'] += 1
+						self.victims['victims'].append(victim)
+						self.victims['victims'].append(victim)
+						self.victims['victims'].append(victim)
+						self.victims['total_victims'] += 4
 						id_number += 1
 						sys.stdout.write("\n{0}[*]{2} Session {1} opened{2}\n{3}".format(h.COLOR_INFO,str(session.id),h.WHITE,self.handle))
 						sys.stdout.flush()
