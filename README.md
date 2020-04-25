@@ -15,6 +15,14 @@ Listen for connections from Hololens client and communicate with EggShell server
 This WsServer use WebSocket Protocol to build the connections between server and its clients.
 Clients must be compatible with server using the same protocol.
 
+
+## Deploy and Run
+```
+$ git clone https://github.com/aiminwei/God-s-Eye-Server.git
+$ cd God-s-Eye-Server
+$ python wsserver.py
+```
+
 ## Functions
 
 ### macos
@@ -25,7 +33,7 @@ Clients must be compatible with server using the same protocol.
 
 1. Server start
     create eggshell thread to accept victim connection
-    create WsServer to accept client (Hololens) to connect
+    create WsServer to accept clients (Hololens) to connect
 
 2. Once server and client have built the connection
     server send push message to client
@@ -35,7 +43,7 @@ Clients must be compatible with server using the same protocol.
     Loop Flow:
         client send request to server
         server send back response
-        optional: when server gets any update, server may send push messages
+        Another thread: when server gets any update, server may send push messages
 
 
 ## Message Format
@@ -140,6 +148,16 @@ For identify victim
             "para":         ""
         }
 }
+For fetching victim's history images
+{
+    "command":      "execution",
+    "content": 
+        {
+            "session_id":   1,
+            "action":       "history_images",
+            "para":         ""
+        }
+}
 ```
 
 #### Command Sets:
@@ -150,14 +168,15 @@ For identify victim
 
 
 #### Action Sets:
-1. picture:        take a picture using victims' camera (session_id specifies which victim to perform)
-2. screenshot:     get a screenshot of victim's machine (session_id specifies which victim to perform)
-3. identify:       identify victim (session_id specifies which victim to perform)
+1. picture:         take a picture using victims' camera (session_id specifies which victim to perform)
+2. screenshot:      get a screenshot of victim's machine (session_id specifies which victim to perform)
+3. identify:        identify victim (session_id specifies which victim to perform)
+3. history_images:  get all history images (screen shots or photos taken by users) for specific identified victim with session_id
 
 
 ### Response Format
 
-Example:
+Example for Execution Command Response:
 ```
 Response for screenshot or picture
 {
@@ -171,6 +190,21 @@ Response for identify command
     "status":       "Success",
     "content_type": "boolean",
     "content":      true
+}
+Response for fetching history images
+{
+    "status":       "Success",
+    "content_type": "json",
+    "content":      
+        {
+            "images": 
+                [
+                    "screenshot_1587854740.jpg", 
+                    "screenshot_1587856023.jpg"
+                ], 
+            "total_images":     2, 
+            "image_path":       "DB/Aimin/Images/"
+        }
 }
 ```
 
@@ -227,6 +261,9 @@ Example:
 2.  profile_info:
     "http://13.52.100.31/DB/Aimin/aimin_face.jpg",
     "http://13.52.100.31/DB/Aimin/profile_Aimin Wei.json"
+3.  for identified victims:
+    photos and screenshots results are also saved under personal db:
+    "http://13.52.100.31/DB/Aimin/Images/"
 
 
 
