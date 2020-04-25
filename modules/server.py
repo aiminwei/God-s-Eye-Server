@@ -47,8 +47,8 @@ class Server:
 
     def set_host_port(self):
         try:
-            lhost = "127.0.0.1"
-            #lhost = "13.52.100.31"
+            #lhost = "127.0.0.1"
+            lhost = "13.52.100.31"
             lport = 4444
             self.host = lhost
             self.port = lport
