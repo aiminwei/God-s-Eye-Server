@@ -306,30 +306,24 @@ class MultiHandler:
 			h.info_error("Error in Saving the image")
 			return
 
-	# Get all history Images for specific victim (session_id)
+	# Get all history Images for specific victim (victim_name)
 	# Return all image filenames under DB/{victim_name}/Images/
-	def get_all_images(self, session_id):
-		if session_id < 1:
-			h.info_error("Invalid Session")
+	def get_all_images(self, victim_name):
+		if not victim_name:
+			h.info_error("Invalid victim name")
 			return None
 
 		try:
-			idx = session_id - 1
-			victim = self.victims['victims'][idx]
-
-			# Only save the image for identified victim
-			if not victim['identified']:
-				h.info_general("Session has not been identified")
+			try:
+				victim_db_path = "./DB/"
+				victims_folders = os.listdir(victim_db_path)
+				if victim_name not in victims_folders:
+					h.info_general("Unidentified victim")
+					return None
+			except:
 				return None
 
-			victim_name = None
-			identified_victims = self.identified_victims['identified_victims']
-			for victim in identified_victims:
-				if victim['session_id'] == session_id:
-					victim_name = victim['profile']['name']
-					break
-
-			# Had found the victim, get all image files
+			# Had found the victim folder, get all image files
 			if victim_name:
 				try:
 					personal_db_image_path = "DB/" + victim_name + "/Images/"
@@ -346,7 +340,7 @@ class MultiHandler:
 					h.info_error("Fetching Images Error")
 					return None
 			else:
-				h.info_general("Haven't found the target victim")
+				h.info_general("Invalid victim name")
 				return None
 
 		except:
