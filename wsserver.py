@@ -11,6 +11,7 @@ import json
 import time
 from eggshell import EggShell
 from PIL import Image
+import copy
 
 
 class WsServer:
@@ -281,9 +282,10 @@ class WsServer:
     def update_victim_info(self, conn):
 
         # Add fake victims to show in UI
-        victims_obj = self.eggshell.server.multihandler.victims.copy()
+        victims_obj = copy.deepcopy(self.eggshell.server.multihandler.victims)
         victims = victims_obj['victims']
-        victims.append(self.eggshell.server.multihandler.fake_victims)
+        for victim in self.eggshell.server.multihandler.fake_victims:
+            victims.append(victim)
         victims_obj['total_victims'] += len(self.eggshell.server.multihandler.fake_victims)
 
         # Otherwise, comment above, uncomment next line
@@ -299,9 +301,10 @@ class WsServer:
     def update_identified_victim(self, conn):
 
         # Add fake victims to show in UI
-        identified_victims_obj = self.eggshell.server.multihandler.identified_victims.copy()
+        identified_victims_obj = copy.deepcopy(self.eggshell.server.multihandler.identified_victims)
         identified_victims = identified_victims_obj['identified_victims']
-        identified_victims.append(self.eggshell.server.multihandler.fake_identified_victims)
+        for identified_victim in self.eggshell.server.multihandler.fake_identified_victims:
+            identified_victims.append(identified_victim)
         identified_victims_obj['total_identified_victims'] += len(self.eggshell.server.multihandler.fake_identified_victims)
 
         # Otherwise, comment above, uncomment next line
