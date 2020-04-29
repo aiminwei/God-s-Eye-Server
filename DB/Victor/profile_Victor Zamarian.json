@@ -1,4 +1,4 @@
-﻿{
+{
     "id": "victor_zamarian",
     "first_name": "Victor",
     "last_name": "Zamarian",
@@ -11,114 +11,146 @@
                 "school": "USC",
                 "degree": "Masters at USC",
                 "major": "Computer Science",
-                "tenure": "2018-2020"
+                "tenure": "2019-2020"
             },
             {
-                "school": "UOP",
-                "degree": "Bachelors at University of the Pacific",
+                "school": "Beihang",
+                "degree": "Bachelors at Beihang",
                 "major": "Computer Science",
                 "tenure": "2014-2018"
             }
         ],
-        "email": "viczam1996@gmail.com",
+        "email": "usccswam@gmail.com",
         "contact_info": {
-            "mobile": "(408) 981-1554",
-            "home": "+1-2134567890"
+            "mobile": "(213) 322-9034",
+            "home": "+1-2133229034"
         },
 
         "residence": {
-            "apt": "1478 W Jefferson Blvd",
+            "apt": "1248 W Adams Blvd",
             "city": "Los Angeles",
             "state": "CA",
             "country": "USA",
             "zipcode": 90007,
-            "latitude": 34.025377,
-            "longitude": -118.299700
+            "latitude": 34.029631,
+            "longitude": -118.287778
         },
 
-        "recent_images": "victor_recent"
+        "recent_images": "aimin_recent"
     },
 
 
     "financial_info": {
 
-        "current_company": "N/A",
-        "company_logo": "victor_company",
-        "position": "N/A",
-        "location": "",
-        "salary": 0,
-        "salary_string": "N/A",
+        "current_company": "Amazon",
+        "company_logo": "gagan_company",
+        "position": "Software Developer",
+        "location": "Seattle, WA",
+        "salary": 120000,
+        "salary_string": "$120,000",
         "venmo_tx": [
             {
-                "amount": "$6",
-                "recipient": "Santhosh Narayanan",
-                "payer": "Victor",
-                "date": "24th Oct 2019"
-            }
+                "amount": "$20",
+                "recipient": "Shwetha Rao",
+                "payer": "Gagan",
+                "date": "11th Oct 2019"
+            },
+          {
+            "amount": "$50",
+            "recipient": "Yatin Gupta",
+            "payer": "Gagan",
+            "date": "10th Oct 2019"
+          },
+          {
+            "amount": "$3.63",
+            "recipient": "Victor Zamarian",
+            "payer": "Gagan",
+            "date": "2nd Oct 2019"
+          },
+          {
+            "amount": "$10",
+            "recipient": "Yash Patel",
+            "payer": "Gagan",
+            "date": "20th Sep 2019"
+          }
         ]
     },
 
     "connections": {
         "relationship_status": "Single",
         "no_of_dependents": 0,
-        "family_members_images_dir":  "victor_family",
+        "family_members_images_dir":  "gagan_family",
         "family_members": [
-            {
-                "name": "Giuseppina",
-                "relation": "Mother",
-                "url": "giuseppina"
-            }
         ],
-        "social_media_friends_images_dir":  "victor_friends",
+        "social_media_friends_images_dir":  "gagan_friends",
         "social_media_friends": [
             {
-                "name": "Ruijing",
-                "url": "ruijing"
+                "name": "Gautam Thakur",
+                "url": "gautam"
             },
             {
-                "name": "Shreyas",
-                "url": "shreyas"
+                "name": "Ashish Mahesh",
+                "url": "ashish"
             },
             {
-                "name": "Ryan",
-                "url": "ryan"
+                "name": "Shwetha Rao",
+                "url": "shwetha"
+            },
+            {
+                "name": "Maria Divya",
+                "url": "maria"
             }
         ]
     },
 
     "social_media_info": {
         "facebook": {
-            "username": "victor.zamarian",
-            "url": "https://www.facebook.com/victor.zamarian"
+            "username": "vasudev.gags",
+            "url": "https://www.facebook.com/vasudev.gags"
         },
         "instagram": {
-            "username": "N/A",
-            "url": ""
+            "username": "devilgags",
+            "url": "https://www.instagram.com/devilgags"
         },
         "linkedin": {
-            "username": "victor-zamarian",
-            "url": "https://www.linkedin.com/in/victor-zamarian-7bb7a4125/"
+            "username": "gagan.vasudev",
+            "url": "https://www.linkedin.com/in/gaganvasudev/"
         },
         "twitter": {
-            "username": "N/A",
-            "url": ""
+            "username": "gaganvasudev",
+            "url": "https://twitter.com/gagan_vasudev"
         }
     },
 
     "interests_info": {
       "checkins": [
         {
-          "location": "Cupertino High School",
-          "date": "5th Jun 2014",
+          "location": "Cinematic Arts",
+          "date": "28th Oct 2019",
           "time": "14:00"
+        },
+        {
+          "location": "Santa Monica",
+          "date": "27th Oct 2019",
+          "time": "14:45"
+        },
+        {
+          "location": "The Grove, LA",
+          "date": "10th Oct 2019",
+          "time": "20:00"
+        },
+        {
+          "location": "Universal Studio, LA",
+          "date": "7th Oct 2019",
+          "time": "14:45"
         }
 
       ],
         "recent_likes": [
-            "Zama Rian",
-            "University of the Pacific",
-            "Humans of Cupertino High",
-            "Logitech G"
+            "University of Southern California",
+            "Universal Studios",
+            "Batman: The Dark Knight",
+            "Apple Macbook Pro"
         ]
     }
 
