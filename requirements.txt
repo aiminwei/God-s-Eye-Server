@@ -4,7 +4,7 @@ get==2019.4.13
 gevent==1.4.0
 greenlet==0.4.15
 idna==2.9
-Pillow==6.2.2
+Pillow==9.0.1
 post==2019.4.13
 public==2019.4.13
 query-string==2019.4.13
